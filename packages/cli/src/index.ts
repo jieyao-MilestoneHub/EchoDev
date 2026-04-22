@@ -16,6 +16,7 @@ Usage:
   echodev recall <paths...> [--modules a,b] [--keywords x,y]
                             [--top K] [--min-score N] [--quiet] [--format json|text]
   echodev extract <ref> [--kind commit|diff|pr|manual] [--llm auto|api|skill|null] [--force]
+                        [--skill-timeout <seconds>]
   echodev add --stdin [--ref <label>]
   echodev check <diff-file>
   echodev list [--status active|superseded|expired] [--format json|text]
@@ -39,7 +40,15 @@ async function main(): Promise<void> {
   switch (args.command) {
     case "init": {
       const created = await init({ repoRoot, withClaude: !flagBool(args, "no-claude") });
-      process.stdout.write(`Initialised echodev.\nCreated:\n  ${created.join("\n  ")}\n`);
+      process.stdout.write(
+        `Initialised echodev.\nCreated:\n  ${created.join("\n  ")}\n\n` +
+          `Next steps:\n` +
+          `  1. Merge .claude/echodev.hooks.snippet.json into .claude/settings.json\n` +
+          `     (or accept it verbatim if settings.json was just created).\n` +
+          `  2. Restart Claude Code, OR run \`/hooks\` inside Claude Code, to\n` +
+          `     activate the new hooks — the settings watcher does not auto-reload\n` +
+          `     on file creation.\n`,
+      );
       return;
     }
     case "recall": {
@@ -57,7 +66,10 @@ async function main(): Promise<void> {
     }
     case "extract": {
       const ref = requirePositional(args, "extract", "ref");
-      const out = await extract(wire({ repoRoot, llmMode }), {
+      const skillTimeoutSec = flagString(args, "skill-timeout");
+      const skillTimeoutMs =
+        skillTimeoutSec === undefined ? undefined : numFlag(args, "skill-timeout", 30) * 1000;
+      const out = await extract(wire({ repoRoot, llmMode, skillTimeoutMs }), {
         kind: (flagString(args, "kind") ?? "commit") as "commit" | "diff" | "pr" | "manual",
         ref,
         idempotent: !flagBool(args, "force"),

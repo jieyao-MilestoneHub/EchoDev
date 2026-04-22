@@ -8,6 +8,14 @@ export async function readStdin(): Promise<string> {
   return Buffer.concat(chunks).toString("utf8");
 }
 
+export async function readFileSafe(file: string): Promise<string | undefined> {
+  try {
+    return await fs.readFile(file, "utf8");
+  } catch {
+    return undefined;
+  }
+}
+
 export async function waitForFile(file: string, timeoutMs: number): Promise<string> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {

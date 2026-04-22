@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import * as path from "node:path";
 import * as url from "node:url";
 import { FileDecisionRepository } from "@hey-echodev/storage-fs";
+import { readFileSafe } from "../util/io.js";
 
 export interface InitOptions {
   readonly repoRoot: string;
@@ -18,6 +19,9 @@ export async function init(opts: InitOptions): Promise<string[]> {
     await fs.mkdir(dir, { recursive: true });
     created.push(path.relative(opts.repoRoot, dir));
   }
+  const gitkeep = path.join(dmRoot, "decisions", ".gitkeep");
+  await fs.writeFile(gitkeep, "", "utf8");
+  created.push(path.relative(opts.repoRoot, gitkeep));
   const gitignore = path.join(dmRoot, ".gitignore");
   await fs.writeFile(gitignore, "bridge/\nindex/\n", "utf8");
   created.push(path.relative(opts.repoRoot, gitignore));
@@ -30,8 +34,15 @@ export async function init(opts: InitOptions): Promise<string[]> {
     created.push(path.relative(opts.repoRoot, skillsDst));
 
     const hooksDst = path.join(claudeDir, "echodev.hooks.snippet.json");
-    await fs.copyFile(path.join(integrations, "hooks", "settings.snippet.json"), hooksDst);
-    created.push(path.relative(opts.repoRoot, hooksDst));
+    const settingsPath = path.join(claudeDir, "settings.json");
+    const existingSettings = await readFileSafe(settingsPath);
+    const alreadyIntegrated = existingSettings !== undefined && existingSettings.includes("echodev recall");
+    if (alreadyIntegrated) {
+      created.push(`(skipped snippet: ${path.relative(opts.repoRoot, settingsPath)} already integrated)`);
+    } else {
+      await fs.copyFile(path.join(integrations, "hooks", "settings.snippet.json"), hooksDst);
+      created.push(path.relative(opts.repoRoot, hooksDst));
+    }
   }
 
   await new FileDecisionRepository(opts.repoRoot).rebuildIndexes();
