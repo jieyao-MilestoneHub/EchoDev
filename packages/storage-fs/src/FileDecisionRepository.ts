@@ -5,7 +5,7 @@ import {
   type DecisionReader,
   type DecisionWriter,
   parseDecisionNode,
-} from "@echodev/core";
+} from "@hey-echodev/core";
 import { atomicWriteJson, readJson } from "./io.js";
 import { buildIndexes } from "./indexer.js";
 

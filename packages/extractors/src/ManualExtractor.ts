@@ -1,4 +1,4 @@
-import type { DecisionNode, Extractor, ExtractionContext } from "@echodev/core";
+import type { DecisionNode, Extractor, ExtractionContext } from "@hey-echodev/core";
 import { draftsToNodes, parseDraftsJson } from "./mapping.js";
 
 export class ManualExtractor implements Extractor {

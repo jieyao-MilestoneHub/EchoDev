@@ -37,11 +37,11 @@
     "node": ">=20"
   },
   "devDependencies": {
-    "@echodev/core": "*",
-    "@echodev/extractors": "*",
-    "@echodev/llm": "*",
-    "@echodev/retriever": "*",
-    "@echodev/storage-fs": "*",
+    "@hey-echodev/core": "*",
+    "@hey-echodev/extractors": "*",
+    "@hey-echodev/llm": "*",
+    "@hey-echodev/retriever": "*",
+    "@hey-echodev/storage-fs": "*",
     "tsup": "^8.5.1"
   },
   "publishConfig": {

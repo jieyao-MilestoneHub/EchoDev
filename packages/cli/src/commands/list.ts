@@ -1,4 +1,4 @@
-import type { DecisionStatus } from "@echodev/core";
+import type { DecisionStatus } from "@hey-echodev/core";
 import type { Services } from "../composition.js";
 
 export interface ListOptions {

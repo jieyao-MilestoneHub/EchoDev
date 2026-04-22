@@ -5,7 +5,7 @@ import {
   makeDecisionId,
   slugify,
   todayIso,
-} from "@echodev/core";
+} from "@hey-echodev/core";
 
 export interface DraftNode {
   readonly slug: string;

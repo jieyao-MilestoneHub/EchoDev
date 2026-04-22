@@ -1,5 +1,5 @@
 import * as fs from "node:fs/promises";
-import type { DecisionNode, Extractor, ExtractionContext, LLMClient } from "@echodev/core";
+import type { DecisionNode, Extractor, ExtractionContext, LLMClient } from "@hey-echodev/core";
 import { runExtraction } from "./prompt.js";
 
 export class DiffExtractor implements Extractor {

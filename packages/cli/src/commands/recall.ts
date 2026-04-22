@@ -1,4 +1,4 @@
-import { recallDecisions } from "@echodev/core";
+import { recallDecisions } from "@hey-echodev/core";
 import type { Services } from "../composition.js";
 
 export interface RecallOptions {

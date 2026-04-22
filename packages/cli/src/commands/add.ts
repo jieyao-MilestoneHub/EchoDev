@@ -1,4 +1,4 @@
-import { draftsToNodes, type DraftNode } from "@echodev/extractors";
+import { draftsToNodes, type DraftNode } from "@hey-echodev/extractors";
 import type { Services } from "../composition.js";
 import { readStdin } from "../util/io.js";
 

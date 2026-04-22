@@ -1,9 +1,9 @@
 import * as path from "node:path";
-import { FileDecisionRepository } from "@echodev/storage-fs";
-import { ContextAwareRetriever } from "@echodev/retriever";
-import { CommitExtractor, DiffExtractor, PRExtractor, ManualExtractor } from "@echodev/extractors";
-import { ClaudeApiClient, NullLLMClient, SkillBridgeClient } from "@echodev/llm";
-import type { LLMClient, Extractor } from "@echodev/core";
+import { FileDecisionRepository } from "@hey-echodev/storage-fs";
+import { ContextAwareRetriever } from "@hey-echodev/retriever";
+import { CommitExtractor, DiffExtractor, PRExtractor, ManualExtractor } from "@hey-echodev/extractors";
+import { ClaudeApiClient, NullLLMClient, SkillBridgeClient } from "@hey-echodev/llm";
+import type { LLMClient, Extractor } from "@hey-echodev/core";
 import { readStdin, waitForFile } from "./util/io.js";
 
 export type LlmMode = "auto" | "api" | "skill" | "null";

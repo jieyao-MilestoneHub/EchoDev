@@ -6,7 +6,7 @@ export default defineConfig({
   target: "node20",
   outDir: "dist",
   clean: true,
-  noExternal: [/^@echodev\//],
+  noExternal: [/^@hey-echodev\//],
   banner: { js: "#!/usr/bin/env node" },
   sourcemap: true,
   shims: false,

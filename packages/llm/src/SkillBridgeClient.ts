@@ -1,6 +1,6 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import type { LLMClient, LLMRequest, LLMResponse } from "@echodev/core";
+import type { LLMClient, LLMRequest, LLMResponse } from "@hey-echodev/core";
 
 // Runs inside Claude Code with no API key: prompt → file, skill writes response → file.
 export class SkillBridgeClient implements LLMClient {

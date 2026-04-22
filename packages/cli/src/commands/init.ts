@@ -2,7 +2,7 @@ import * as fs from "node:fs/promises";
 import { existsSync } from "node:fs";
 import * as path from "node:path";
 import * as url from "node:url";
-import { FileDecisionRepository } from "@echodev/storage-fs";
+import { FileDecisionRepository } from "@hey-echodev/storage-fs";
 
 export interface InitOptions {
   readonly repoRoot: string;

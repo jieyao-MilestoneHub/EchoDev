@@ -2,8 +2,8 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { recordDecisions } from "@echodev/core";
-import { assertSafeRef } from "@echodev/extractors";
+import { recordDecisions } from "@hey-echodev/core";
+import { assertSafeRef } from "@hey-echodev/extractors";
 import { extractorFor, type Services } from "../composition.js";
 
 const run = promisify(execFile);

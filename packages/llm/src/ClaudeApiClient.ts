@@ -1,4 +1,4 @@
-import type { LLMClient, LLMRequest, LLMResponse } from "@echodev/core";
+import type { LLMClient, LLMRequest, LLMResponse } from "@hey-echodev/core";
 
 export interface ClaudeApiOptions {
   readonly apiKey: string;

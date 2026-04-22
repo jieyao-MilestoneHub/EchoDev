@@ -1,4 +1,4 @@
-import { DecisionGraph, type DecisionNode, type DecisionEdge } from "@echodev/core";
+import { DecisionGraph, type DecisionNode, type DecisionEdge } from "@hey-echodev/core";
 
 export interface IndexBundle {
   readonly byFile: Record<string, string[]>;

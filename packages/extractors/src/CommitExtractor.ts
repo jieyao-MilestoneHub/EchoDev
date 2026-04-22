@@ -1,4 +1,4 @@
-import type { DecisionNode, Extractor, ExtractionContext, LLMClient } from "@echodev/core";
+import type { DecisionNode, Extractor, ExtractionContext, LLMClient } from "@hey-echodev/core";
 import { getCommit } from "./git.js";
 import { runExtraction } from "./prompt.js";
 

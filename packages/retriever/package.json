@@ -1,5 +1,5 @@
 {
-  "name": "@echodev/retriever",
+  "name": "@hey-echodev/retriever",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,7 @@
     }
   },
   "dependencies": {
-    "@echodev/core": "*"
+    "@hey-echodev/core": "*"
   },
   "scripts": {
     "build": "tsc -b"

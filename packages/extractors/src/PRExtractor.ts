@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import type { DecisionNode, Extractor, ExtractionContext, LLMClient } from "@echodev/core";
+import type { DecisionNode, Extractor, ExtractionContext, LLMClient } from "@hey-echodev/core";
 import { runExtraction } from "./prompt.js";
 
 const run = promisify(execFile);

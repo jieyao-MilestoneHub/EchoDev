@@ -1,5 +1,5 @@
 import * as fs from "node:fs/promises";
-import { findConflicts, type DiffSummary } from "@echodev/core";
+import { findConflicts, type DiffSummary } from "@hey-echodev/core";
 import type { Services } from "../composition.js";
 
 export interface CheckOptions {

@@ -8,7 +8,7 @@ import {
   type RetrievalResult,
   type Retriever,
   matchesGlob,
-} from "@echodev/core";
+} from "@hey-echodev/core";
 
 interface Weights {
   readonly fileMatch: number;

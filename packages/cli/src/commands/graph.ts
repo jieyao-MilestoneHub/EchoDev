@@ -1,4 +1,4 @@
-import { DecisionGraph } from "@echodev/core";
+import { DecisionGraph } from "@hey-echodev/core";
 import type { Services } from "../composition.js";
 
 export interface GraphOptions {

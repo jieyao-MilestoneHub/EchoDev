@@ -7,7 +7,7 @@ import { check } from "./commands/check.js";
 import { list } from "./commands/list.js";
 import { graph } from "./commands/graph.js";
 import { add } from "./commands/add.js";
-import { DEFAULT_MIN_SCORE, DEFAULT_TOP_K, isDecisionStatus } from "@echodev/core";
+import { DEFAULT_MIN_SCORE, DEFAULT_TOP_K, isDecisionStatus } from "@hey-echodev/core";
 
 const USAGE = `echodev — persistent design memory for Claude-assisted codebases
 

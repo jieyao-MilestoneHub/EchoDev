@@ -1,4 +1,4 @@
-import type { DecisionNode, DecisionSource, LLMClient } from "@echodev/core";
+import type { DecisionNode, DecisionSource, LLMClient } from "@hey-echodev/core";
 import { draftsToNodes, parseDraftsJson } from "./mapping.js";
 
 export const EXTRACTION_SYSTEM = `You extract structured "decision nodes" from a code change.
