@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "test -d .echodev && echodev recall \"$CLAUDE_TOOL_INPUT_file_path\" --quiet --format text || true"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "test -d .echodev && git rev-parse HEAD >/dev/null 2>&1 && echodev extract HEAD --kind commit --llm auto || true"
+          }
+        ]
+      }
+    ]
+  }
+}

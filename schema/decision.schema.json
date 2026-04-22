@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://echodev.dev/schema/decision.schema.json",
+  "title": "DecisionNode",
+  "description": "A single unit of design memory. One file per node under .echodev/decisions/<id>.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "created_at",
+    "status",
+    "problem",
+    "decision",
+    "affected_files",
+    "affected_modules",
+    "relations",
+    "future_reminders",
+    "source"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^d-[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9-]+$",
+      "description": "Stable identifier: d-YYYY-MM-DD-<slug>"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO-8601 date the decision was recorded."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "superseded", "expired"],
+      "description": "Lifecycle state. `superseded` means another node replaced it; `expired` means its preconditions no longer hold."
+    },
+    "problem": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What question this decision answers."
+    },
+    "decision": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The chosen answer."
+    },
+    "alternatives": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "constraints": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": [],
+      "description": "Preconditions under which this decision holds."
+    },
+    "failures": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": [],
+      "description": "Failure modes this decision is meant to prevent."
+    },
+    "expiry_conditions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": [],
+      "description": "Conditions that, when true, should invalidate this decision."
+    },
+    "affected_files": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Glob patterns or paths this decision governs."
+    },
+    "affected_modules": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Logical modules this decision governs."
+    },
+    "relations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["inherits", "conflicts_with", "fills_gap_of", "shared_premise", "superseded_by"],
+      "properties": {
+        "inherits":        { "type": "array", "items": { "type": "string" }, "default": [] },
+        "conflicts_with":  { "type": "array", "items": { "type": "string" }, "default": [] },
+        "fills_gap_of":    { "type": "array", "items": { "type": "string" }, "default": [] },
+        "shared_premise":  { "type": "array", "items": { "type": "string" }, "default": [] },
+        "superseded_by":   { "type": ["string", "null"], "default": null }
+      }
+    },
+    "future_reminders": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["who_might_repeat", "revisit_when"],
+      "properties": {
+        "who_might_repeat": {
+          "type": "string",
+          "description": "A future reader most likely to re-encounter this problem."
+        },
+        "revisit_when": {
+          "type": "string",
+          "description": "A signal that this decision should be re-examined."
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "ref"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["commit", "pr", "issue", "manual"]
+        },
+        "ref": { "type": "string" }
+      }
+    }
+  }
+}

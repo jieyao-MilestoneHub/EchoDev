@@ -1,0 +1,37 @@
+{
+  "id": "d-2026-01-10-auth-jwt-in-cookie-001",
+  "created_at": "2026-01-10",
+  "status": "active",
+  "problem": "Where should session tokens live on the client?",
+  "decision": "Store the JWT in an HttpOnly, SameSite=Lax cookie; never in localStorage.",
+  "alternatives": [
+    "localStorage with manual Authorization header wiring",
+    "in-memory only, re-auth on page reload"
+  ],
+  "constraints": [
+    "All first-party clients are on the same registrable domain",
+    "CSRF is mitigated via SameSite=Lax + origin check"
+  ],
+  "failures": [
+    "Token exfiltration via third-party script on the page",
+    "Silent loss of session on reload"
+  ],
+  "expiry_conditions": [
+    "We ship a subdomain-isolated client that needs cross-site auth",
+    "We move to opaque session ids stored server-side"
+  ],
+  "affected_files": ["src/auth/**", "packages/web/src/auth/**"],
+  "affected_modules": ["auth"],
+  "relations": {
+    "inherits": [],
+    "conflicts_with": [],
+    "fills_gap_of": [],
+    "shared_premise": [],
+    "superseded_by": null
+  },
+  "future_reminders": {
+    "who_might_repeat": "engineer adding a new SSO provider or mobile client",
+    "revisit_when": "a client needs tokens accessible to JavaScript (e.g. cross-origin fetch without proxy)"
+  },
+  "source": { "type": "manual", "ref": "seed" }
+}

@@ -1,0 +1,10 @@
+diff --git a/src/auth/session.ts b/src/auth/session.ts
+index 1111111..2222222 100644
+--- a/src/auth/session.ts
++++ b/src/auth/session.ts
+@@ -10,7 +10,7 @@ export function storeSession(token: string): void {
+-  document.cookie = `auth=${token}; HttpOnly; SameSite=Lax`;
++  // Switching to opaque server-side sessions stored in the database.
++  localStorage.setItem("auth", token);
++  window.sessionModel = "server-side";
+ }

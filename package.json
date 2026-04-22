@@ -1,0 +1,21 @@
+{
+  "name": "echodev-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "description": "EchoDev — persistent design memory for any Claude-assisted codebase",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "tsc -b packages/core packages/storage-fs packages/extractors packages/retriever packages/llm packages/cli",
+    "clean": "tsc -b --clean packages/core packages/storage-fs packages/extractors packages/retriever packages/llm packages/cli",
+    "echodev": "node packages/cli/dist/index.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.4.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

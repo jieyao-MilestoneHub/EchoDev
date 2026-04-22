@@ -1,0 +1,36 @@
+{
+  "id": "d-2026-03-05-cache-redis-003",
+  "created_at": "2026-03-05",
+  "status": "superseded",
+  "problem": "Where do we store ephemeral response caches?",
+  "decision": "Use a single shared Redis instance behind the API for all response caching.",
+  "alternatives": [
+    "In-process LRU per service",
+    "Memcached with consistent hashing"
+  ],
+  "constraints": [
+    "All services live in the same VPC",
+    "Cache entries are small (<8 KB) and tolerate eviction"
+  ],
+  "failures": [
+    "Cross-service cache key collisions",
+    "Redis outage cascades into API failure"
+  ],
+  "expiry_conditions": [
+    "Regulated data must be cached in-region and the shared Redis is multi-region"
+  ],
+  "affected_files": ["src/cache/**"],
+  "affected_modules": ["cache"],
+  "relations": {
+    "inherits": [],
+    "conflicts_with": [],
+    "fills_gap_of": [],
+    "shared_premise": [],
+    "superseded_by": "d-2026-04-01-cache-per-service-004"
+  },
+  "future_reminders": {
+    "who_might_repeat": "engineer adding a new cacheable endpoint",
+    "revisit_when": "compliance requires per-region data isolation"
+  },
+  "source": { "type": "manual", "ref": "seed" }
+}

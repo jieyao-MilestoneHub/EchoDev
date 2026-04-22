@@ -1,0 +1,24 @@
+{
+  "name": "echodev",
+  "version": "0.1.0",
+  "description": "EchoDev CLI",
+  "type": "module",
+  "bin": {
+    "echodev": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@echodev/core": "*",
+    "@echodev/storage-fs": "*",
+    "@echodev/extractors": "*",
+    "@echodev/retriever": "*",
+    "@echodev/llm": "*"
+  },
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
