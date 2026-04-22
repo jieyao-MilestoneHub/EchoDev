@@ -20,7 +20,12 @@ export async function extract(services: Services, opts: ExtractOptions): Promise
     opts.idempotent && opts.kind === "commit"
       ? await resolveSha(services.repoRoot, opts.ref)
       : undefined;
-  const marker = path.join(services.repoRoot, ".echodev", ".last-extracted");
+  const marker = path.join(services.repoRoot, ".echodev", "index", ".last-extracted");
+  await migrateLegacyMarker(services.repoRoot, marker);
+
+  if (services.llm.name === "null") {
+    return "(probe: --llm null, no marker written)";
+  }
 
   if (sha !== undefined && (await readFile(marker)) === sha) {
     return `(skip: ${sha.slice(0, 7)} already extracted)`;
@@ -32,6 +37,10 @@ export async function extract(services: Services, opts: ExtractOptions): Promise
     { ref: sha ?? opts.ref, repoRoot: services.repoRoot },
   );
 
+  if (services.llm.didFallback?.() === true) {
+    return "(skill bridge timed out; fell back to null LLM, no marker written)";
+  }
+
   if (sha !== undefined) {
     await fs.mkdir(path.dirname(marker), { recursive: true });
     await fs.writeFile(marker, `${sha}\n`, "utf8");
@@ -40,6 +49,18 @@ export async function extract(services: Services, opts: ExtractOptions): Promise
   return nodes.length === 0
     ? "(no decisions extracted)"
     : nodes.map((n) => `+ ${n.id}  ${n.decision}`).join("\n");
+}
+
+async function migrateLegacyMarker(repoRoot: string, newMarker: string): Promise<void> {
+  const legacy = path.join(repoRoot, ".echodev", ".last-extracted");
+  try {
+    const content = await fs.readFile(legacy, "utf8");
+    await fs.mkdir(path.dirname(newMarker), { recursive: true });
+    await fs.writeFile(newMarker, content, "utf8");
+    await fs.unlink(legacy);
+  } catch {
+    // no legacy marker; nothing to migrate
+  }
 }
 
 async function readFile(file: string): Promise<string | undefined> {

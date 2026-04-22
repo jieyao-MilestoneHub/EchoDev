@@ -121,6 +121,11 @@ Each decision is one JSON file under `.echodev/decisions/<id>.json`:
 
 Full schema: [`schema/decision.schema.json`](https://github.com/jieyao-MilestoneHub/EchoDev/blob/main/schema/decision.schema.json) — language-agnostic, any tool can read/write.
 
+### What to commit
+
+- Commit: `.echodev/decisions/`, `.echodev/.gitignore`
+- Ignore (auto-managed, per-clone): `.echodev/index/`, `.echodev/bridge/` — these are rebuilt from `decisions/` on demand and include a local idempotency marker; they should never be shared.
+
 ## LLM modes
 
 `--llm auto|api|skill|null`:
