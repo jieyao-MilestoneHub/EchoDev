@@ -1,6 +1,7 @@
 import { parseArgs, flagString, flagBool, type ParsedArgs } from "./args.js";
 import { wire, type LlmMode } from "./composition.js";
 import { init } from "./commands/init.js";
+import { uninstall } from "./commands/uninstall.js";
 import { recall } from "./commands/recall.js";
 import { extract } from "./commands/extract.js";
 import { check } from "./commands/check.js";
@@ -13,6 +14,7 @@ const USAGE = `echodev — persistent design memory for Claude-assisted codebase
 
 Usage:
   echodev init [--no-claude]
+  echodev uninstall [--no-claude] [--purge]
   echodev recall <paths...> [--modules a,b] [--keywords x,y]
                             [--top K] [--min-score N] [--quiet] [--format json|text]
   echodev extract <ref> [--kind commit|diff|pr|manual] [--llm auto|api|skill|null] [--force]
@@ -38,6 +40,19 @@ async function main(): Promise<void> {
   const llmMode = flagString(args, "llm") as LlmMode | undefined;
 
   switch (args.command) {
+    case "uninstall": {
+      const removed = await uninstall({
+        repoRoot,
+        withClaude: !flagBool(args, "no-claude"),
+        purge: flagBool(args, "purge"),
+      });
+      if (removed.length === 0) {
+        process.stdout.write(`Nothing to uninstall — no echodev artifacts found.\n`);
+      } else {
+        process.stdout.write(`Uninstalled echodev.\nRemoved:\n  ${removed.join("\n  ")}\n`);
+      }
+      return;
+    }
     case "init": {
       const created = await init({ repoRoot, withClaude: !flagBool(args, "no-claude") });
       process.stdout.write(
