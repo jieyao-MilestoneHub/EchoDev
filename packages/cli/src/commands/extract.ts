@@ -3,6 +3,7 @@ import * as path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { recordDecisions } from "@echodev/core";
+import { assertSafeRef } from "@echodev/extractors";
 import { extractorFor, type Services } from "../composition.js";
 
 const run = promisify(execFile);
@@ -51,7 +52,10 @@ async function readFile(file: string): Promise<string | undefined> {
 
 async function resolveSha(repoRoot: string, ref: string): Promise<string | undefined> {
   try {
-    return (await run("git", ["rev-parse", ref], { cwd: repoRoot })).stdout.trim();
+    assertSafeRef(ref);
+    return (await run("git", ["rev-parse", "--verify", "--end-of-options", ref], {
+      cwd: repoRoot,
+    })).stdout.trim();
   } catch {
     return undefined;
   }
