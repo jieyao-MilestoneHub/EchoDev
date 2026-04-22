@@ -40,6 +40,12 @@ jobs:
             exit 1
           fi
 
+      # Auth is OIDC trusted publishing (no long-lived token). The package must
+      # be configured as a trusted publisher on npmjs.com:
+      #   Package → Settings → Publishing access → Add trusted publisher →
+      #   GitHub Actions / jieyao-MilestoneHub / EchoDev / publish.yml
+      # Once that is in place, npm publish below uses the job's OIDC token to
+      # mint a short-lived publish token — it does not need NPM_TOKEN.
       - name: Publish to npm (${{ inputs.dry-run && 'dry-run' || 'real' }})
         working-directory: packages/cli
         run: |
@@ -48,5 +54,3 @@ jobs:
           else
             npm publish --provenance --access public
           fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
