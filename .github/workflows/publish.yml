@@ -22,8 +22,15 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           registry-url: 'https://registry.npmjs.org'
+
+      # Trusted publishing (OIDC → short-lived publish token) requires
+      # npm >= 11.5.1. Node 22 LTS ships with npm 10.x, so we upgrade
+      # explicitly. Without this the publish step 404s even when OIDC
+      # provenance signing succeeds.
+      - run: npm install -g npm@latest
+      - run: node --version && npm --version
 
       - run: npm ci
 
