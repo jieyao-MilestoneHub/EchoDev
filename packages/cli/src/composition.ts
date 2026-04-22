@@ -18,7 +18,11 @@ export interface Services {
 export interface WireOptions {
   readonly repoRoot: string;
   readonly llmMode?: LlmMode;
+  /** Skill-bridge wait timeout in milliseconds. Defaults to 30s. */
+  readonly skillTimeoutMs?: number;
 }
+
+const DEFAULT_SKILL_TIMEOUT_MS = 30_000;
 
 export function wire(opts: WireOptions): Services {
   const repo = new FileDecisionRepository(opts.repoRoot);
@@ -37,9 +41,10 @@ function buildLLM(opts: WireOptions): LLMClient {
 
   if (resolved === "null") return new NullLLMClient();
   if (resolved === "skill") {
+    const timeoutMs = opts.skillTimeoutMs ?? DEFAULT_SKILL_TIMEOUT_MS;
     return new SkillBridgeClient(
       path.join(opts.repoRoot, ".echodev", "bridge"),
-      (file) => waitForFile(file, 5 * 60_000),
+      (file) => waitForFile(file, timeoutMs),
     );
   }
   if (resolved === "api") {
