@@ -3,6 +3,7 @@ import { wire, type LlmMode } from "./composition.js";
 import { init } from "./commands/init.js";
 import { uninstall } from "./commands/uninstall.js";
 import { migrate } from "./commands/migrate.js";
+import { show } from "./commands/show.js";
 import { recall } from "./commands/recall.js";
 import { extract } from "./commands/extract.js";
 import { check } from "./commands/check.js";
@@ -18,12 +19,14 @@ Usage:
   echodev uninstall [--no-claude] [--purge]
   echodev migrate
   echodev recall <paths...> [--modules a,b] [--keywords x,y]
-                            [--top K] [--min-score N] [--quiet] [--format json|text]
+                            [--top K] [--min-score N] [--quiet] [--explain]
+                            [--if-expired-block] [--format json|text]
   echodev extract <ref> [--kind commit|diff|pr|manual] [--llm auto|api|skill|null] [--force]
                         [--skill-timeout <seconds>]
   echodev add --stdin [--ref <label>]
   echodev check <diff-file>
   echodev list [--status active|superseded|expired] [--format json|text]
+  echodev show <id> [--format json|text]
   echodev graph [--format mermaid|json]
 
 Context discipline: recall defaults to --top ${DEFAULT_TOP_K} --min-score ${DEFAULT_MIN_SCORE}.
@@ -90,6 +93,8 @@ async function main(): Promise<void> {
         topK: numFlag(args, "top", DEFAULT_TOP_K),
         minScore: numFlag(args, "min-score", DEFAULT_MIN_SCORE),
         quiet: flagBool(args, "quiet"),
+        explain: flagBool(args, "explain"),
+        ifExpiredBlock: flagBool(args, "if-expired-block"),
       });
       if (text.length > 0) process.stdout.write(`${text}\n`);
       return;
@@ -129,6 +134,15 @@ async function main(): Promise<void> {
       }
       const out = await list(wire({ repoRoot }), {
         status,
+        format: (flagString(args, "format") ?? "text") as "json" | "text",
+      });
+      process.stdout.write(`${out}\n`);
+      return;
+    }
+    case "show": {
+      const id = requirePositional(args, "show", "id");
+      const out = await show(wire({ repoRoot }), {
+        id,
         format: (flagString(args, "format") ?? "text") as "json" | "text",
       });
       process.stdout.write(`${out}\n`);
