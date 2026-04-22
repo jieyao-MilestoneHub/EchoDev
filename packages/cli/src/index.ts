@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import { parseArgs, flagString, flagBool, type ParsedArgs } from "./args.js";
 import { wire, type LlmMode } from "./composition.js";
 import { init } from "./commands/init.js";

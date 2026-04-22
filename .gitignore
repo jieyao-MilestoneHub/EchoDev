@@ -2,6 +2,10 @@ node_modules/
 dist/
 *.tsbuildinfo
 
+# generated at prepack (copied from repo root)
+packages/cli/README.md
+packages/cli/LICENSE
+
 # env
 .env
 .env.local

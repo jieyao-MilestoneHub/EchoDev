@@ -1,24 +1,50 @@
 {
-  "name": "echodev",
+  "name": "@hey-echodev/cli",
   "version": "0.1.0",
-  "description": "EchoDev CLI",
+  "description": "EchoDev — persistent design memory for Claude-assisted codebases",
+  "license": "MIT",
+  "homepage": "https://github.com/jieyao-MilestoneHub/EchoDev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jieyao-MilestoneHub/EchoDev.git",
+    "directory": "packages/cli"
+  },
+  "bugs": "https://github.com/jieyao-MilestoneHub/EchoDev/issues",
+  "keywords": [
+    "claude",
+    "claude-code",
+    "decision-memory",
+    "design-decisions",
+    "adr",
+    "cli"
+  ],
   "type": "module",
   "bin": {
     "echodev": "dist/index.js"
   },
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "dependencies": {
-    "@echodev/core": "*",
-    "@echodev/storage-fs": "*",
-    "@echodev/extractors": "*",
-    "@echodev/retriever": "*",
-    "@echodev/llm": "*"
-  },
+  "files": [
+    "dist",
+    "integrations",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
-    "build": "tsc -b"
+    "build": "tsup",
+    "prepack": "node -e \"const {cpSync}=require('node:fs');cpSync('../../README.md','./README.md');cpSync('../../LICENSE','./LICENSE')\" && npm run build"
   },
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "@echodev/core": "*",
+    "@echodev/extractors": "*",
+    "@echodev/llm": "*",
+    "@echodev/retriever": "*",
+    "@echodev/storage-fs": "*",
+    "tsup": "^8.5.1"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
