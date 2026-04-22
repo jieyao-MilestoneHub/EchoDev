@@ -2,6 +2,7 @@ import { parseArgs, flagString, flagBool, type ParsedArgs } from "./args.js";
 import { wire, type LlmMode } from "./composition.js";
 import { init } from "./commands/init.js";
 import { uninstall } from "./commands/uninstall.js";
+import { migrate } from "./commands/migrate.js";
 import { recall } from "./commands/recall.js";
 import { extract } from "./commands/extract.js";
 import { check } from "./commands/check.js";
@@ -15,6 +16,7 @@ const USAGE = `echodev — persistent design memory for Claude-assisted codebase
 Usage:
   echodev init [--no-claude]
   echodev uninstall [--no-claude] [--purge]
+  echodev migrate
   echodev recall <paths...> [--modules a,b] [--keywords x,y]
                             [--top K] [--min-score N] [--quiet] [--format json|text]
   echodev extract <ref> [--kind commit|diff|pr|manual] [--llm auto|api|skill|null] [--force]
@@ -40,6 +42,19 @@ async function main(): Promise<void> {
   const llmMode = flagString(args, "llm") as LlmMode | undefined;
 
   switch (args.command) {
+    case "migrate": {
+      const result = await migrate({ repoRoot });
+      const lines = [
+        `Migrated: ${result.migrated.length}`,
+        ...result.migrated.map((n) => `  + ${n}`),
+        `Skipped (already on current schema): ${result.skipped.length}`,
+        `Failed: ${result.failed.length}`,
+        ...result.failed.map((f) => `  ! ${f.file}: ${f.error}`),
+      ];
+      process.stdout.write(`${lines.join("\n")}\n`);
+      if (result.failed.length > 0) process.exitCode = 2;
+      return;
+    }
     case "uninstall": {
       const removed = await uninstall({
         repoRoot,

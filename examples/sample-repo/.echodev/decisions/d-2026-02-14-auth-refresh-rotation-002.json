@@ -1,4 +1,5 @@
 {
+  "schema_version": "1.0",
   "id": "d-2026-02-14-auth-refresh-rotation-002",
   "created_at": "2026-02-14",
   "status": "active",
@@ -19,18 +20,31 @@
   "expiry_conditions": [
     "We switch to opaque server-side sessions (refresh rotation becomes unnecessary)"
   ],
-  "affected_files": ["src/auth/refresh/**"],
-  "affected_modules": ["auth"],
+  "affected_files": [
+    "src/auth/refresh/**"
+  ],
+  "affected_modules": [
+    "auth"
+  ],
   "relations": {
-    "inherits": ["d-2026-01-10-auth-jwt-in-cookie-001"],
+    "inherits": [
+      "d-2026-01-10-auth-jwt-in-cookie-001"
+    ],
     "conflicts_with": [],
-    "fills_gap_of": ["d-2026-01-10-auth-jwt-in-cookie-001"],
-    "shared_premise": ["d-2026-01-10-auth-jwt-in-cookie-001"],
+    "fills_gap_of": [
+      "d-2026-01-10-auth-jwt-in-cookie-001"
+    ],
+    "shared_premise": [
+      "d-2026-01-10-auth-jwt-in-cookie-001"
+    ],
     "superseded_by": null
   },
   "future_reminders": {
     "who_might_repeat": "engineer investigating an auth incident or hardening flow",
     "revisit_when": "session model changes from stateless JWT to server-side"
   },
-  "source": { "type": "manual", "ref": "seed" }
+  "source": {
+    "type": "manual",
+    "ref": "seed"
+  }
 }

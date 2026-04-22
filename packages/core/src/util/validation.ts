@@ -1,4 +1,10 @@
-import type { DecisionNode, DecisionRelations, FutureReminders, DecisionSource } from "../entities/DecisionNode.js";
+import {
+  CURRENT_SCHEMA_VERSION,
+  type DecisionNode,
+  type DecisionRelations,
+  type FutureReminders,
+  type DecisionSource,
+} from "../entities/DecisionNode.js";
 import { isDecisionStatus } from "../entities/DecisionStatus.js";
 
 const ID_RX = /^d-\d{4}-\d{2}-\d{2}-[a-z0-9-]+$/;
@@ -9,11 +15,18 @@ export function parseDecisionNode(raw: unknown): DecisionNode {
   const v = asObject(raw, "decision");
   const id = str(v, "id");
   if (!ID_RX.test(id)) throw new Error(`id "${id}" does not match d-YYYY-MM-DD-<slug>`);
+  const schema_version = str(v, "schema_version");
+  if (schema_version !== CURRENT_SCHEMA_VERSION) {
+    throw new Error(
+      `decision ${id}: unsupported schema_version "${schema_version}" (expected "${CURRENT_SCHEMA_VERSION}"). Run \`echodev migrate\` to upgrade legacy records.`,
+    );
+  }
   const created_at = str(v, "created_at");
   if (!DATE_RX.test(created_at)) throw new Error(`created_at "${created_at}" is not YYYY-MM-DD`);
   const status = str(v, "status");
   if (!isDecisionStatus(status)) throw new Error(`status "${status}" is invalid`);
   return {
+    schema_version: CURRENT_SCHEMA_VERSION,
     id,
     created_at,
     status,

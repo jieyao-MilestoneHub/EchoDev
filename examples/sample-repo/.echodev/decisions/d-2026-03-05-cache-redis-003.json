@@ -1,4 +1,5 @@
 {
+  "schema_version": "1.0",
   "id": "d-2026-03-05-cache-redis-003",
   "created_at": "2026-03-05",
   "status": "superseded",
@@ -19,8 +20,12 @@
   "expiry_conditions": [
     "Regulated data must be cached in-region and the shared Redis is multi-region"
   ],
-  "affected_files": ["src/cache/**"],
-  "affected_modules": ["cache"],
+  "affected_files": [
+    "src/cache/**"
+  ],
+  "affected_modules": [
+    "cache"
+  ],
   "relations": {
     "inherits": [],
     "conflicts_with": [],
@@ -32,5 +37,8 @@
     "who_might_repeat": "engineer adding a new cacheable endpoint",
     "revisit_when": "compliance requires per-region data isolation"
   },
-  "source": { "type": "manual", "ref": "seed" }
+  "source": {
+    "type": "manual",
+    "ref": "seed"
+  }
 }

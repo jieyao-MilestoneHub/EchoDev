@@ -1,4 +1,5 @@
 import {
+  CURRENT_SCHEMA_VERSION,
   type DecisionNode,
   type DecisionSource,
   emptyRelations,
@@ -29,6 +30,7 @@ export function draftsToNodes(
   return drafts.map((draft, i) => {
     const files = draft.affected_files?.length ? draft.affected_files : defaultFiles;
     return {
+      schema_version: CURRENT_SCHEMA_VERSION,
       id: makeDecisionId(date, slugify(draft.slug || draft.problem), i + 1),
       created_at: date,
       status: "active",

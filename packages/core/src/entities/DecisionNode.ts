@@ -20,7 +20,11 @@ export interface FutureReminders {
   readonly revisit_when: string;
 }
 
+export const CURRENT_SCHEMA_VERSION = "1.0" as const;
+export type SchemaVersion = typeof CURRENT_SCHEMA_VERSION;
+
 export interface DecisionNode {
+  readonly schema_version: SchemaVersion;
   readonly id: string;
   readonly created_at: string;
   readonly status: DecisionStatus;

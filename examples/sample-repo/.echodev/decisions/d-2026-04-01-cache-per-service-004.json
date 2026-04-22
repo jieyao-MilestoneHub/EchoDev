@@ -1,4 +1,5 @@
 {
+  "schema_version": "1.0",
   "id": "d-2026-04-01-cache-per-service-004",
   "created_at": "2026-04-01",
   "status": "active",
@@ -18,11 +19,17 @@
   "expiry_conditions": [
     "We reintroduce a shared materialized-view layer"
   ],
-  "affected_files": ["src/cache/**"],
-  "affected_modules": ["cache"],
+  "affected_files": [
+    "src/cache/**"
+  ],
+  "affected_modules": [
+    "cache"
+  ],
   "relations": {
     "inherits": [],
-    "conflicts_with": ["d-2026-03-05-cache-redis-003"],
+    "conflicts_with": [
+      "d-2026-03-05-cache-redis-003"
+    ],
     "fills_gap_of": [],
     "shared_premise": [],
     "superseded_by": null
@@ -31,5 +38,8 @@
     "who_might_repeat": "engineer tempted to add a shared cache utility",
     "revisit_when": "cross-service read-through becomes common enough to justify a shared layer"
   },
-  "source": { "type": "manual", "ref": "seed" }
+  "source": {
+    "type": "manual",
+    "ref": "seed"
+  }
 }
