@@ -22,8 +22,30 @@ export interface RetrievalResult {
   readonly hits: readonly RetrievalHit[];
 }
 
+export interface ScoreBreakdown {
+  readonly file: number;
+  readonly module: number;
+  readonly keyword: number;
+  readonly matches: {
+    readonly file: readonly string[];
+    readonly module: readonly string[];
+    readonly keyword: readonly string[];
+  };
+}
+
+export interface ExplainedHit extends RetrievalHit {
+  readonly breakdown: ScoreBreakdown;
+  readonly passedThreshold: boolean;
+}
+
+export interface ExplainResult {
+  readonly candidates: readonly ExplainedHit[];
+  readonly minScore: number;
+}
+
 export interface Retriever {
   retrieve(query: RetrievalQuery): Promise<RetrievalResult>;
+  explain?(query: RetrievalQuery): Promise<ExplainResult>;
 }
 
 export const DEFAULT_MIN_SCORE = 0.5;

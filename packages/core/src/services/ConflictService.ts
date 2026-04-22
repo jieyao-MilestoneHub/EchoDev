@@ -40,7 +40,7 @@ const STOPWORDS = new Set([
   "have", "been", "they", "them", "than", "then", "some", "move", "make",
 ]);
 
-function lineMatchesExpiry(line: string, condition: string): boolean {
+export function lineMatchesExpiry(line: string, condition: string): boolean {
   const tokens = condition
     .toLowerCase()
     .split(/[^a-z0-9_]+/)
