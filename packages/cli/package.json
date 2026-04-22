@@ -1,6 +1,6 @@
 {
   "name": "@hey-echodev/cli",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "EchoDev — persistent design memory for Claude-assisted codebases",
   "license": "MIT",
   "homepage": "https://github.com/jieyao-MilestoneHub/EchoDev",

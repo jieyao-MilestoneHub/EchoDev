@@ -21,3 +21,9 @@ Thumbs.db
 # editors
 .vscode/
 .idea/
+
+# local Claude Code working dir (rules / agents / plans; not shared)
+.claude/
+
+# npm pack output
+*.tgz
