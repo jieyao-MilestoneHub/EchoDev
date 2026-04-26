@@ -29,7 +29,14 @@ jobs:
       # npm >= 11.5.1. Node 22 LTS ships with npm 10.x, so we upgrade
       # explicitly. Without this the publish step 404s even when OIDC
       # provenance signing succeeds.
-      - run: npm install -g npm@latest
+      #
+      # Pinned (not `@latest`): on 2026-04-26 the v0.3.0 publish dry-run
+      # failed because npm 10.x self-upgrading to npm@latest (12.x) left a
+      # half-rewritten global node_modules and threw
+      # `Cannot find module 'promise-retry'` from @npmcli/arborist. 11.5.1
+      # is the documented OIDC minimum and a known-good landing point.
+      # Bump deliberately when there's a reason; do not float to @latest.
+      - run: npm install -g npm@11.5.1
       - run: node --version && npm --version
 
       - run: npm ci
