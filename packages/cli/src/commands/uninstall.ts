@@ -17,6 +17,9 @@ export async function uninstall(opts: UninstallOptions): Promise<string[]> {
     const claudeDir = path.join(opts.repoRoot, ".claude");
     await removeIfExists(path.join(claudeDir, "skills", "echodev-recall"), removed, opts.repoRoot);
     await removeIfExists(path.join(claudeDir, "skills", "echodev-record"), removed, opts.repoRoot);
+    // Legacy artifact: pre-recipe versions of `echodev init` wrote a sidecar.
+    // Recent versions print the recipe to stdout instead, but we still clean
+    // the file up here so users upgrading don't have to delete it manually.
     await removeIfExists(path.join(claudeDir, "echodev.hooks.snippet.json"), removed, opts.repoRoot);
     await unmergeSettingsHooks(path.join(claudeDir, "settings.json"), removed, opts.repoRoot);
   }

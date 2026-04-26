@@ -72,16 +72,21 @@ async function main(): Promise<void> {
       return;
     }
     case "init": {
-      const created = await init({ repoRoot, withClaude: !flagBool(args, "no-claude") });
-      process.stdout.write(
-        `Initialised echodev.\nCreated:\n  ${created.join("\n  ")}\n\n` +
-          `Next steps:\n` +
-          `  1. Merge .claude/echodev.hooks.snippet.json into .claude/settings.json\n` +
-          `     (or accept it verbatim if settings.json was just created).\n` +
-          `  2. Restart Claude Code, OR run \`/hooks\` inside Claude Code, to\n` +
-          `     activate the new hooks — the settings watcher does not auto-reload\n` +
-          `     on file creation.\n`,
-      );
+      const { created, hookRecipe, hooksAlreadyInstalled } = await init({
+        repoRoot,
+        withClaude: !flagBool(args, "no-claude"),
+      });
+      let out = `Initialised echodev.\nCreated:\n  ${created.join("\n  ")}\n`;
+      if (hooksAlreadyInstalled) {
+        out += `\nHooks already installed in .claude/settings.json — skipping recipe.\n`;
+      } else if (hookRecipe !== undefined) {
+        out +=
+          `\nNext step — merge into .claude/settings.json (top-level "hooks" key):\n` +
+          `${hookRecipe}\n\n` +
+          `Then run \`/hooks\` inside Claude Code (or restart) to activate. ` +
+          `See README "Hook recipe" for details.\n`;
+      }
+      process.stdout.write(out);
       return;
     }
     case "recall": {
