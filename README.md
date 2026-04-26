@@ -58,13 +58,49 @@ echodev graph             [--format mermaid|json]
 
 ## Claude Code integration
 
-`echodev init` drops two skills + a hook snippet into `.claude/`:
+`echodev init` drops two skills into `.claude/skills/` and prints a hook recipe to stdout for you to paste into `.claude/settings.json`:
 
 - **`echodev-recall`** — `echodev recall <file>` before any non-trivial edit.
 - **`echodev-record`** — captures decisions from a completed change.
-- **`.claude/echodev.hooks.snippet.json`** — paste into `settings.json`:
-  - `PreToolUse` on `Edit|MultiEdit` → silent recall (gated on `.echodev/` existing)
-  - `Stop` → idempotent `extract HEAD`
+
+EchoDev never auto-edits `.claude/settings.json` — Claude Code [best practices](https://code.claude.com/docs/en/best-practices) recommend you own that file. Re-running `echodev init` is safe; it detects an existing `echodev recall` entry and skips the recipe.
+
+### Hook recipe
+
+Copy these entries into your `.claude/settings.json` (under the top-level `"hooks"` key):
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "test -d .echodev && echodev recall \"$CLAUDE_TOOL_INPUT_file_path\" --quiet --format text || true"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "test -d .echodev && git rev-parse HEAD >/dev/null 2>&1 && echodev extract HEAD --kind commit --llm auto || true"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+- `PreToolUse` on `Edit|MultiEdit` → silent recall (gated on `.echodev/` existing)
+- `Stop` → idempotent `extract HEAD`
+
+After merging, run `/hooks` inside Claude Code to verify (or restart Claude Code).
 
 ## Why EchoDev
 

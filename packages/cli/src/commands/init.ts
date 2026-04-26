@@ -10,7 +10,13 @@ export interface InitOptions {
   readonly withClaude: boolean;
 }
 
-export async function init(opts: InitOptions): Promise<string[]> {
+export interface InitResult {
+  readonly created: readonly string[];
+  readonly hookRecipe?: string;
+  readonly hooksAlreadyInstalled: boolean;
+}
+
+export async function init(opts: InitOptions): Promise<InitResult> {
   const created: string[] = [];
   const dmRoot = path.join(opts.repoRoot, ".echodev");
 
@@ -26,6 +32,9 @@ export async function init(opts: InitOptions): Promise<string[]> {
   await fs.writeFile(gitignore, "bridge/\nindex/\n", "utf8");
   created.push(path.relative(opts.repoRoot, gitignore));
 
+  let hookRecipe: string | undefined;
+  let hooksAlreadyInstalled = false;
+
   if (opts.withClaude) {
     const integrations = findIntegrations();
     const claudeDir = path.join(opts.repoRoot, ".claude");
@@ -33,20 +42,26 @@ export async function init(opts: InitOptions): Promise<string[]> {
     await fs.cp(path.join(integrations, "skills"), skillsDst, { recursive: true });
     created.push(path.relative(opts.repoRoot, skillsDst));
 
-    const hooksDst = path.join(claudeDir, "echodev.hooks.snippet.json");
     const settingsPath = path.join(claudeDir, "settings.json");
     const existingSettings = await readFileSafe(settingsPath);
-    const alreadyIntegrated = existingSettings !== undefined && existingSettings.includes("echodev recall");
-    if (alreadyIntegrated) {
-      created.push(`(skipped snippet: ${path.relative(opts.repoRoot, settingsPath)} already integrated)`);
-    } else {
-      await fs.copyFile(path.join(integrations, "hooks", "settings.snippet.json"), hooksDst);
-      created.push(path.relative(opts.repoRoot, hooksDst));
+    hooksAlreadyInstalled =
+      existingSettings !== undefined && existingSettings.includes("echodev recall");
+    if (!hooksAlreadyInstalled) {
+      hookRecipe = await loadHookRecipe(integrations);
     }
   }
 
   await new FileDecisionRepository(opts.repoRoot).rebuildIndexes();
-  return created;
+  return { created, hookRecipe, hooksAlreadyInstalled };
+}
+
+async function loadHookRecipe(integrations: string): Promise<string> {
+  const raw = await fs.readFile(
+    path.join(integrations, "hooks", "settings.snippet.json"),
+    "utf8",
+  );
+  const parsed = JSON.parse(raw) as { hooks?: unknown };
+  return JSON.stringify({ hooks: parsed.hooks ?? {} }, null, 2);
 }
 
 /**
