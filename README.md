@@ -146,6 +146,7 @@ Each decision is one JSON file under `.echodev/decisions/<id>.json`:
 
 ```jsonc
 {
+  "schema_version":   "1.0",
   "id":               "d-YYYY-MM-DD-<slug>",
   "status":           "active | superseded | expired",
   "problem":          "...", "decision": "...",
@@ -162,6 +163,16 @@ Each decision is one JSON file under `.echodev/decisions/<id>.json`:
 ```
 
 Full schema: [`schema/decision.schema.json`](https://github.com/jieyao-MilestoneHub/EchoDev/blob/main/schema/decision.schema.json) — language-agnostic, any tool can read/write.
+
+### Schema versioning
+
+Every decision file carries `schema_version`. The current version is `"1.0"`.
+
+- **Writers stamp it.** `echodev add` and `echodev extract` set `schema_version: "1.0"` on every decision they produce.
+- **Readers fail-closed.** Any decision missing `schema_version`, or carrying a value the running CLI doesn't know, is rejected with an error pointing to `echodev migrate`. This prevents silent corruption when the schema evolves.
+- **`echodev migrate` walks a forward chain.** `packages/cli/src/commands/migrate.ts` declares a `MIGRATIONS` registry — currently one step (`undefined → "1.0"`, backfilling pre-versioned legacy files). The walker applies whatever steps lead from the file's current version to the target.
+- **Adding v2 is one append.** When a future schema change ships, add a `{from: "1.0", to: "1.1", apply: ...}` entry to the chain. `echodev migrate` picks it up; existing files migrate forward in a single pass; no other code changes.
+- **No downgrade.** A file carrying a version newer than the running CLI knows about has no chain step → migrate refuses with a clear error rather than corrupting it. Upgrade the CLI instead.
 
 ### What to commit
 
