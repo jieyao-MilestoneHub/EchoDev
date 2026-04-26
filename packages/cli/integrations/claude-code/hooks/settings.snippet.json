@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "test -d .echodev && command -v echodev >/dev/null 2>&1 && echodev recall \"$CLAUDE_TOOL_INPUT_file_path\" --quiet --format text || true"
+            "command": "test -d .echodev && command -v echodev >/dev/null 2>&1 && echodev recall --from-stdin --quiet --format text || true"
           }
         ]
       }

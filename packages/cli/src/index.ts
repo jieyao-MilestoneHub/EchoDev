@@ -10,6 +10,7 @@ import { check } from "./commands/check.js";
 import { list } from "./commands/list.js";
 import { graph } from "./commands/graph.js";
 import { add } from "./commands/add.js";
+import { readStdin } from "./util/io.js";
 import { DEFAULT_MIN_SCORE, DEFAULT_TOP_K, isDecisionStatus } from "@hey-echodev/core";
 
 const USAGE = `echodev — persistent design memory for Claude-assisted codebases
@@ -18,9 +19,9 @@ Usage:
   echodev init [--no-claude]
   echodev uninstall [--no-claude] [--purge]
   echodev migrate
-  echodev recall <paths...> [--modules a,b] [--keywords x,y]
-                            [--top K] [--min-score N] [--quiet] [--explain]
-                            [--if-expired-block] [--format json|text]
+  echodev recall [<paths...>] [--from-stdin] [--modules a,b] [--keywords x,y]
+                              [--top K] [--min-score N] [--quiet] [--explain]
+                              [--if-expired-block] [--format json|text]
   echodev extract <ref> [--kind commit|diff|pr|manual] [--llm auto|api|skill|null] [--force]
                         [--skill-timeout <seconds>]
   echodev add --stdin [--ref <label>]
@@ -90,8 +91,9 @@ async function main(): Promise<void> {
       return;
     }
     case "recall": {
+      const stdinPaths = flagBool(args, "from-stdin") ? await readPathsFromHookStdin() : [];
       const { text } = await recall(wire({ repoRoot }), {
-        files: args.positionals,
+        files: [...stdinPaths, ...args.positionals],
         modules: splitCsv(flagString(args, "modules")),
         keywords: splitCsv(flagString(args, "keywords")),
         format: (flagString(args, "format") ?? "text") as "json" | "text",
@@ -182,6 +184,23 @@ function numFlag(args: ParsedArgs, key: string, fallback: number): number {
   const n = Number(raw);
   if (!Number.isFinite(n)) throw new Error(`--${key} must be a number, got "${raw}"`);
   return n;
+}
+
+// Reads Claude Code's documented hook input — JSON on stdin with a
+// `tool_input.file_path` field (see https://code.claude.com/docs/en/hooks-guide).
+// Stays silent on missing/invalid input so a contract drift becomes a no-op
+// rather than a crash; the user notices via empty recall output.
+async function readPathsFromHookStdin(): Promise<readonly string[]> {
+  if (process.stdin.isTTY) return [];
+  try {
+    const raw = await readStdin();
+    if (raw.trim().length === 0) return [];
+    const parsed = JSON.parse(raw) as { tool_input?: { file_path?: unknown } };
+    const fp = parsed.tool_input?.file_path;
+    return typeof fp === "string" && fp.length > 0 ? [fp] : [];
+  } catch {
+    return [];
+  }
 }
 
 main().catch((err) => {
