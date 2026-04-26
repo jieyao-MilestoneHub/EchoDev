@@ -78,7 +78,7 @@ Copy these entries into your `.claude/settings.json` (under the top-level `"hook
         "hooks": [
           {
             "type": "command",
-            "command": "test -d .echodev && command -v echodev >/dev/null 2>&1 && echodev recall \"$CLAUDE_TOOL_INPUT_file_path\" --quiet --format text || true"
+            "command": "test -d .echodev && command -v echodev >/dev/null 2>&1 && echodev recall --from-stdin --quiet --format text || true"
           }
         ]
       }
@@ -100,7 +100,11 @@ Copy these entries into your `.claude/settings.json` (under the top-level `"hook
 - `PreToolUse` on `Edit|MultiEdit` → silent recall (gated on `.echodev/` and `command -v echodev`)
 - `Stop` → idempotent `extract HEAD` (same gates + `git rev-parse HEAD`)
 
-The `command -v echodev` guard keeps the hook silent on machines where the CLI isn't installed yet — teammates can pull the repo before running `npm install -g @hey-echodev/cli` without their Claude Code transcript filling with `echodev: command not found`.
+#### Hook contract
+
+PreToolUse consumes Claude Code's [documented hook input](https://code.claude.com/docs/en/hooks-guide) — a JSON object on stdin with a `tool_input.file_path` field. `recall --from-stdin` parses it; the contract surface lives inside this CLI so the recipe stays POSIX-pure (no `jq` dependency) and so a future Claude Code schema change needs one fix here, not in every consumer's `settings.json`. The `command -v echodev` guard keeps the hook silent on machines where the CLI isn't installed.
+
+**Tested against Claude Code as of 2026-04.** If the hook stops returning recall results after a Claude Code update, the contract may have shifted — open an issue or check `recall --from-stdin` against the latest [hooks reference](https://code.claude.com/docs/en/hooks).
 
 After merging, run `/hooks` inside Claude Code to verify (or restart Claude Code).
 
