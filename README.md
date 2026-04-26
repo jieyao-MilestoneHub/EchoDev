@@ -78,7 +78,7 @@ Copy these entries into your `.claude/settings.json` (under the top-level `"hook
         "hooks": [
           {
             "type": "command",
-            "command": "test -d .echodev && echodev recall \"$CLAUDE_TOOL_INPUT_file_path\" --quiet --format text || true"
+            "command": "test -d .echodev && command -v echodev >/dev/null 2>&1 && echodev recall \"$CLAUDE_TOOL_INPUT_file_path\" --quiet --format text || true"
           }
         ]
       }
@@ -88,7 +88,7 @@ Copy these entries into your `.claude/settings.json` (under the top-level `"hook
         "hooks": [
           {
             "type": "command",
-            "command": "test -d .echodev && git rev-parse HEAD >/dev/null 2>&1 && echodev extract HEAD --kind commit --llm auto || true"
+            "command": "test -d .echodev && command -v echodev >/dev/null 2>&1 && git rev-parse HEAD >/dev/null 2>&1 && echodev extract HEAD --kind commit --llm auto || true"
           }
         ]
       }
@@ -97,8 +97,10 @@ Copy these entries into your `.claude/settings.json` (under the top-level `"hook
 }
 ```
 
-- `PreToolUse` on `Edit|MultiEdit` → silent recall (gated on `.echodev/` existing)
-- `Stop` → idempotent `extract HEAD`
+- `PreToolUse` on `Edit|MultiEdit` → silent recall (gated on `.echodev/` and `command -v echodev`)
+- `Stop` → idempotent `extract HEAD` (same gates + `git rev-parse HEAD`)
+
+The `command -v echodev` guard keeps the hook silent on machines where the CLI isn't installed yet — teammates can pull the repo before running `npm install -g @hey-echodev/cli` without their Claude Code transcript filling with `echodev: command not found`.
 
 After merging, run `/hooks` inside Claude Code to verify (or restart Claude Code).
 
