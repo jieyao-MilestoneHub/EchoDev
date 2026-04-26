@@ -91,9 +91,9 @@ async function main(): Promise<void> {
       return;
     }
     case "recall": {
-      const stdinPaths = flagBool(args, "from-stdin") ? await readPathsFromHookStdin() : [];
+      const hookInput = flagBool(args, "from-stdin") ? await readHookStdin() : undefined;
       const { text } = await recall(wire({ repoRoot }), {
-        files: [...stdinPaths, ...args.positionals],
+        files: [...(hookInput?.paths ?? []), ...args.positionals],
         modules: splitCsv(flagString(args, "modules")),
         keywords: splitCsv(flagString(args, "keywords")),
         format: (flagString(args, "format") ?? "text") as "json" | "text",
@@ -102,6 +102,7 @@ async function main(): Promise<void> {
         quiet: flagBool(args, "quiet"),
         explain: flagBool(args, "explain"),
         ifExpiredBlock: flagBool(args, "if-expired-block"),
+        editNewContent: hookInput?.editNewContent,
       });
       if (text.length > 0) process.stdout.write(`${text}\n`);
       return;
@@ -186,20 +187,55 @@ function numFlag(args: ParsedArgs, key: string, fallback: number): number {
   return n;
 }
 
-// Reads Claude Code's documented hook input — JSON on stdin with a
-// `tool_input.file_path` field (see https://code.claude.com/docs/en/hooks-guide).
-// Stays silent on missing/invalid input so a contract drift becomes a no-op
-// rather than a crash; the user notices via empty recall output.
-async function readPathsFromHookStdin(): Promise<readonly string[]> {
-  if (process.stdin.isTTY) return [];
+interface HookStdin {
+  readonly paths: readonly string[];
+  readonly editNewContent?: string;
+}
+
+// Reads Claude Code's documented hook input — JSON on stdin with a `tool_input`
+// object (see https://code.claude.com/docs/en/hooks-guide). Extracts both the
+// file path (Edit/MultiEdit/Write) and the new content for `--if-expired-block`.
+// MultiEdit's `tool_input.edits[]` is concatenated. Stays silent on
+// missing/invalid input so contract drift becomes a no-op rather than a crash.
+async function readHookStdin(): Promise<HookStdin | undefined> {
+  if (process.stdin.isTTY) return undefined;
   try {
     const raw = await readStdin();
-    if (raw.trim().length === 0) return [];
-    const parsed = JSON.parse(raw) as { tool_input?: { file_path?: unknown } };
-    const fp = parsed.tool_input?.file_path;
-    return typeof fp === "string" && fp.length > 0 ? [fp] : [];
+    if (raw.trim().length === 0) return undefined;
+    const parsed = JSON.parse(raw) as {
+      tool_input?: {
+        file_path?: unknown;
+        new_string?: unknown;
+        content?: unknown;
+        edits?: unknown;
+      };
+    };
+    const ti = parsed.tool_input;
+    if (ti === undefined || ti === null) return undefined;
+
+    const fp = typeof ti.file_path === "string" && ti.file_path.length > 0 ? ti.file_path : undefined;
+
+    let editNewContent: string | undefined;
+    if (typeof ti.new_string === "string" && ti.new_string.length > 0) {
+      editNewContent = ti.new_string;
+    } else if (typeof ti.content === "string" && ti.content.length > 0) {
+      // Write tool ships full file body as `content`.
+      editNewContent = ti.content;
+    } else if (Array.isArray(ti.edits)) {
+      const joined = ti.edits
+        .map((e) => {
+          if (e === null || typeof e !== "object") return "";
+          const ns = (e as { new_string?: unknown }).new_string;
+          return typeof ns === "string" ? ns : "";
+        })
+        .filter((s) => s.length > 0)
+        .join("\n");
+      if (joined.length > 0) editNewContent = joined;
+    }
+
+    return { paths: fp !== undefined ? [fp] : [], editNewContent };
   } catch {
-    return [];
+    return undefined;
   }
 }
 

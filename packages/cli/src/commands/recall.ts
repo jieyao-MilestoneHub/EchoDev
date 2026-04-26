@@ -13,11 +13,19 @@ export interface RecallOptions {
   /** When true, dump per-candidate score breakdown for debugging. */
   readonly explain: boolean;
   /**
-   * When true and the PreToolUse env carries the edit's new content, emit a
-   * Claude Code block JSON decision if any matching decision's expiry
-   * condition is tripped. Off by default (advisory mode).
+   * When true and `editNewContent` is supplied, emit a Claude Code block JSON
+   * decision if any matching decision's expiry condition is tripped. Off by
+   * default (advisory mode).
    */
   readonly ifExpiredBlock: boolean;
+  /**
+   * The pending edit's "after" content, sourced from Claude Code's hook
+   * stdin JSON (`tool_input.new_string` for Edit, `tool_input.content` for
+   * Write, joined `tool_input.edits[].new_string` for MultiEdit). Required
+   * for `--if-expired-block` to detect tripped expiry conditions; left
+   * undefined otherwise.
+   */
+  readonly editNewContent?: string;
 }
 
 export interface RecallOutput {
@@ -35,7 +43,7 @@ export async function recall(services: Services, opts: RecallOptions): Promise<R
   const result = await recallDecisions(services.repo, services.retriever, opts);
 
   if (opts.ifExpiredBlock) {
-    const blocked = detectExpiredBlock(result.hits);
+    const blocked = detectExpiredBlock(result.hits, opts.editNewContent);
     if (blocked !== undefined) {
       return { text: JSON.stringify(blocked), hitCount: result.hits.length };
     }
@@ -89,11 +97,11 @@ async function explainMode(services: Services, opts: RecallOptions): Promise<Rec
 
 function detectExpiredBlock(
   hits: readonly RetrievalHit[],
+  editNewContent: string | undefined,
 ): { decision: "block"; reason: string } | undefined {
-  const content = readEditNewContent();
-  if (content === undefined || content.length === 0) return undefined;
+  if (editNewContent === undefined || editNewContent.length === 0) return undefined;
 
-  const lines = content.split(/\r?\n/);
+  const lines = editNewContent.split(/\r?\n/);
   for (const hit of hits) {
     for (const expiry of hit.node.expiry_conditions) {
       const tripped = lines.some((line) => lineMatchesExpiry(line, expiry));
@@ -108,14 +116,6 @@ function detectExpiredBlock(
     }
   }
   return undefined;
-}
-
-function readEditNewContent(): string | undefined {
-  return (
-    process.env["CLAUDE_TOOL_INPUT_new_string"] ??
-    process.env["CLAUDE_TOOL_INPUT_new_content"] ??
-    process.env["CLAUDE_TOOL_INPUT_content"]
-  );
 }
 
 function formatCandidate(c: ExplainedHit): readonly string[] {
