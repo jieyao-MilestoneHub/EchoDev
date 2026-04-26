@@ -65,6 +65,8 @@ echodev graph             [--format mermaid|json]
 
 EchoDev never auto-edits `.claude/settings.json` — Claude Code [best practices](https://code.claude.com/docs/en/best-practices) recommend you own that file. Re-running `echodev init` is safe; it detects an existing `echodev recall` entry and skips the recipe.
 
+> **For deeper guidance**, see [`docs/best_practice.md`](docs/best_practice.md) — a user-facing best-practices guide where every rule cites both a Claude Code anchor and an EchoDev design anchor.
+
 ### Hook recipe
 
 Copy these entries into your `.claude/settings.json` (under the top-level `"hooks"` key):
